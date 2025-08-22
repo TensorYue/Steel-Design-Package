@@ -29,6 +29,8 @@ Combined Compression and Flexure AISC Ch.H (The calculation for HSS is relativel
 
 ## Function List
 
+### Doubly Symmetric I Shape
+
 Doubly_I_Compression
 
 Doubly_I_Design
@@ -36,6 +38,8 @@ Doubly_I_Design
 Doubly_I_Flexure Major
 
 Doubly_I_Flexure Minor
+
+### Round HSS
 
 Round_HSS_Design
 

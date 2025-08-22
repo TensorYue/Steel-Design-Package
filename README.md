@@ -1,8 +1,15 @@
 # Steel-Design-Package
-A series of Allowable Stress Method (ASD) design packages per AISC Steel Construction Manual that allow user to optimize their design.
+
+**A series of Allowable Stress Method (ASD) design packages per AISC Steel Construction Manual.**
+
 User can rewrite the code into their preferred programming language if have no access to Excel VBA.
 
 ## Package Feature
+
+### Dynamic Update for Changes
+<img width="1594" height="399" alt="image" src="https://github.com/user-attachments/assets/398ac10f-a1a0-47fc-955b-b09932e3cea7" />
+
+## Supported Design
 
 ### Doubly Symmetric I Shape
 

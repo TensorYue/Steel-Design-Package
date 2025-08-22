@@ -23,7 +23,7 @@ Combined Compression and Flexure AISC Ch.H
 
 ### Round HSS
 
-Combined Compression and Flexure AISC Ch.H (The calculation for HSS is relatively simple, user can extract the design for individual load from the VBA code if needed)
+Combined Compression and Flexure AISC Ch.H (The calculation for HSS is relatively simple, user can extract the design for individual case from the VBA code if needed)
 
 # Reference
 

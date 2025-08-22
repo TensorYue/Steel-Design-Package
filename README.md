@@ -19,5 +19,7 @@ Combined Compression and Flexure AISC Ch.H
 Combined Compression and Flexure AISC Ch.H (The calculation for HSS is relatively simple, user can extract the design for individual load from the VBA code if needed)
 
 # Reference
+
 American Institute of Steel Construction - Steel Construction Manual 15th Edition
+
 American Institute of Steel Construction - Shape Database v15.0

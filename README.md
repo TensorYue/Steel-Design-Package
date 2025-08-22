@@ -2,6 +2,8 @@
 
 **A series of Allowable Stress Design (ASD) packages per AISC Steel Construction Manual.**
 
+Written in Excel VBA
+
 User can rewrite the code into their preferred programming language if have no access to Excel VBA.
 
 ## Package Feature

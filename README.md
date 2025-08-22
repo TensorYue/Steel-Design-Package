@@ -29,15 +29,15 @@ Combined Compression and Flexure AISC Ch.H (The calculation for HSS is relativel
 
 ## Function List
 
-Doubly I Compression
+Doubly_I_Compression
 
-Doubly I Design
+Doubly_I_Design
 
-Doubly I Flexure Major
+Doubly_I_Flexure Major
 
-Doubly I Flexure Minor
+Doubly_I_Flexure Minor
 
-Round HSS Design
+Round_HSS_Design
 
 ## Reference
 

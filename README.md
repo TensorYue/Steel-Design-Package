@@ -27,6 +27,18 @@ Combined Compression and Flexure AISC Ch.H
 
 Combined Compression and Flexure AISC Ch.H (The calculation for HSS is relatively simple, user can extract the design for individual case from the VBA code if needed)
 
+## Function List
+
+Doubly I Compression
+
+Doubly I Design
+
+Doubly I Flexure Major
+
+Doubly I Flexure Minor
+
+Round HSS Design
+
 ## Reference
 
 American Institute of Steel Construction - Steel Construction Manual 15th Edition

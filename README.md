@@ -15,17 +15,17 @@ User can rewrite the code into their preferred programming language if have no a
 
 ### Doubly Symmetric I Shape
 
-Compression AISC Ch.E
+Compression AISC Ch. E
 
-Flexure - Major Axis AISC Ch.F
+Flexure - Major Axis AISC Ch. F
 
-Flexure - Minor Axis AISC Ch.F
+Flexure - Minor Axis AISC Ch. F
 
-Combined Compression and Flexure AISC Ch.H
+Combined Compression and Flexure AISC Ch. E, F, H
 
 ### Round HSS
 
-Combined Compression and Flexure AISC Ch.H (The calculation for HSS is relatively simple, user can extract the design for individual case from the VBA code if needed)
+Combined Compression and Flexure AISC Ch. E, F, H (The calculation for HSS is relatively simple, user can extract the design for individual case from the VBA code if needed)
 
 ## Function List
 

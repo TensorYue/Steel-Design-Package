@@ -1,0 +1,112 @@
+
+Function Round_HSS_Design(Diameter As Double, Thickness As Double, Unsupported_Length_Major As Double, Unsupported_Length_Minor As Double, Yield_Strength As Double, Axial_Force As Double, Axial_Moment_Major As Double, Axial_Moment_Minor As Double)
+
+'General Input (Geometric and Mechanical Properties)
+
+d = Diameter
+
+t = Thickness
+
+F_y = Yield_Strength
+
+E = 29000
+
+Lambda = d / t
+
+If Lambda > 0.45 * E / F_y Then
+Round_HSS_Design = "Error, Lambda>0.45*E/F_y"
+Exit Function
+End If
+
+D_i = d - 2 * t
+
+Pi = Application.WorksheetFunction.Pi()
+
+A = Pi / 4 * (Application.WorksheetFunction.Power(d, 2) - Application.WorksheetFunction.Power(D_i, 2))
+
+S = Pi / 32 * (Application.WorksheetFunction.Power(d, 4) - Application.WorksheetFunction.Power(D_i, 4)) / d
+
+Z = 1 / 6 * (Application.WorksheetFunction.Power(d, 3) - Application.WorksheetFunction.Power(D_i, 3))
+
+I = Pi / 64 * (Application.WorksheetFunction.Power(d, 4) - Application.WorksheetFunction.Power(D_i, 4))
+
+r = Application.WorksheetFunction.Power(I / A, 0.5)
+
+'Axial Compression AISC Chapter E
+
+
+If Lambda < 0.11 * E / F_y Then
+
+A_ge = A
+
+Else
+
+A_ge = (0.038 * E / F_y / Lambda + 2 / 3) * A
+
+End If
+
+L_c = Application.WorksheetFunction.Min(Unsupported_Length_Major, Unsupported_Length_Minor) * 12
+
+F_e = Pi * Pi * E / Application.WorksheetFunction.Power(L_c / r, 2)
+
+If L_c / r <= 4.71 * Application.WorksheetFunction.Power(E / F_y, 0.5) Then
+    
+F_cr = Application.WorksheetFunction.Power(0.658, F_y / F_e) * F_y
+    
+Else
+    
+F_cr = 0.877 * F_e
+    
+End If
+    
+P_n = F_cr * A_ge
+
+'Flexure AISC Chapter F
+
+If Lambda < 0.07 * E / F_y Then
+
+M_n = F_y * Z / 12
+
+Else
+    
+    If Lambda < 0.31 * E / F_y Then
+    
+    M_n = Application.WorksheetFunction.Min(F_y * Z, (0.021 * E / Lambda + F_y) * S) / 12
+    
+    Else
+    
+    M_n = Application.WorksheetFunction.Min(F_y * Z, 0.33 * E / Lambda * S) / 12
+    
+    End If
+    
+End If
+
+'Combined Strength AISC Chapter H
+
+P_c = P_n / 1.67
+
+M_c = M_n / 1.67
+
+P_r = Axial_Force
+
+M_r_Major = Axial_Moment_Major
+
+M_r_Minor = Axial_Moment_Minor
+
+If P_r / P_c >= 0.2 Then
+
+Combined_Utilization = P_r / P_c + 8 / 9 * (M_r_Major / M_c + M_r_Minor / M_c)
+
+Else
+
+Combined_Utilization = P_r / P_c / 2 + (M_r_Major / M_c + M_r_Minor / M_c)
+
+End If
+
+Round_HSS_Design = Combined_Utilization
+
+End Function
+
+
+
+

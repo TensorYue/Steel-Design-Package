@@ -1,0 +1,205 @@
+
+Function Doubly_I_Flexure_Minor(A As Double, d As Double, t_w As Double, b_f As Double, t_f As Double, k As Double, Unit_Weight As Double, Lambda_f As Double, Lambda_w As Double, I_x As Double, S_x As Double, r_x As Double, Z_x As Double, I_y As Double, S_y As Double, r_y As Double, Z_y As Double, r_ts As Double, h_0 As Double, J As Double, C_w As Double, Unsupported_Length_Major As Double, Unsupported_Length_Minor As Double, Unsupported_Length_Rotation As Double, Yield_Strength As Double, Axial_Force As Double, Axial_Moment_Major As Double, Axial_Moment_Minor As Double)
+
+
+' Initialize
+
+Pi = Application.WorksheetFunction.Pi()
+
+h = d - 2 * k
+Gamma = Unit_Weight / 1000
+
+F_y = Yield_Strength
+E = 29000
+G = 11200
+
+L_cx = 12 * Unsupported_Length_Major ' ft to in
+L_cy = 12 * Unsupported_Length_Minor ' ft to in
+L_cz = 12 * Unsupported_Length_Rotation ' ft to in
+
+L_x = 12 * Unsupported_Length_Major ' ft to in
+L_y = 12 * Unsupported_Length_Minor ' ft to in
+L_z = 12 * Unsupported_Length_Rotation ' ft to in
+
+
+' Flexure
+
+    ' Major Axis
+    
+    '' Check Compactness
+    Lambda_pf = 0.38 * Application.WorksheetFunction.Power(E / F_y, 0.5) ' B4.1b
+    Lambda_rf = Application.WorksheetFunction.Power(E / F_y, 0.5) ' B4.1b
+    Lambda_pw = 3.76 * Application.WorksheetFunction.Power(E / F_y, 0.5) ' B4.1b
+    Lambda_rw = 5.7 * Application.WorksheetFunction.Power(E / F_y, 0.5) ' B4.1b
+
+    c = 1 ' F2-8a
+
+    L_b = L_y ' F2 L_b is the length between points that are either braced against lateral displacement of the compression flange or braced against twist of the cross section
+
+    m_p = F_y * Z_x ' M_n_Y Yield Resistance F2-1
+    C_b = 1 ' Lateral Torsional Modification Factor F1.
+
+    If Lambda_w <= Lambda_pw Then ' Compact Web B4.1b
+        
+        L_p = 1.76 * r_y * Application.WorksheetFunction.Power(E / F_y, 0.5) ' F2-5
+        L_r = 1.95 * r_ts * E / 0.7 / F_y * Application.WorksheetFunction.Power(J * c / S_x / h_0 + Application.WorksheetFunction.Power(Application.WorksheetFunction.Power(J * c / S_x / h_0, 2) + 6.76 * (0.7 * F_y / E) ^ 2, 0.5), 0.5) ' F2-6
+        
+        ' Lateral Tortional Buckling
+        If L_b <= L_p Then
+            M_n_LTB = m_p
+        ElseIf L_b <= L_r Then
+            M_n_LTB = C_b * (m_p - (m_p - 0.7 * F_y * S_x) * (L_b - L_p) / (L_r - L_p)) ' F2-2
+        Else
+            F_cr = C_b * Pi * Pi * E / (L_b / r_ts) ^ 2 * Application.WorksheetFunction.Power(1 + 0.078 * J * c / S_x / h_0 * Application.WorksheetFunction.Power(L_b / r_ts, 2), 0.5) ' F2-4
+            M_n_LTB = F_cr * S_x ' F2-3
+        End If
+
+        If Lambda_f <= Lambda_pf Then ' Compact Flange B4.1b
+            M_n = Application.WorksheetFunction.Min(m_p, M_n_LTB) 'F2
+
+        '' Flange Local Buckling
+        ElseIf Lambda_f <= Lambda_rf Then ' Non-Compact Flange
+            M_n = Application.WorksheetFunction.Min(m_p - (m_p - 0.7 * F_y * S_x) * (Lambda_f - Lambda_pf) / (Lambda_rf - Lambda_pf), M_n_LTB, m_p) ' F3-1
+            
+        Else ' Slender Flange
+            k_c = 4 / Application.WorksheetFunction.Power(h / t_w, 0.5)
+            M_n = Application.WorksheetFunction.Min(0.9 * E * k_c * S_x / Lambda_f / Lambda_f, M_n_LTB, m_p) ' F3-2
+        End If
+        
+    ElseIf Lambda_w <= Lambda_rw Then ' Non-Compact Web B4.1b
+
+        I_yc = 1 / 12 * t_f * b_f * b_f * b_f ' F4.2(c)(2) I_yc is the moment of inertial of the compression flange about the y-axis
+        S_xc = (1 / 12 * b_f * t_f * t_f * t_f + b_f * t_f * Application.WorksheetFunction.Power(0.5 * d - 0.5 * t_f, 2)) / (d / 2) ' F4.1 S_xc is the elastic section modulus referred to compression flange
+        h_c = h ' F4.2(c)(6) h_c is twicee the distance from the centroid to the following: the inside face of the compression flange less the fillet or corner radius, for rolled shapes; the nearest line of fasteners at the compression flange or the inside faces of the compression flange when welds are used, for built-up sections
+        M_yc = F_y * S_xc
+
+        ' F4.2(c)(6)
+        If I_yc / I_y <= 0.23 Then
+            R_pc = 1 ' F4-10
+        Else
+            If h_c / t_w <= Lambda_pw Then ' h_c/t_w
+                R_pc = m_p / M_yc ' F4-9a
+            Else
+                R_pc = Application.WorksheetFunction.Min(m_p / M_yc - (m_p / M_yc - 1) * (h_c / t_w - Lambda_pw) / (Lambda_rw - Lambda_pw), m_p / M_yc) ' F4-9b
+            End If
+        End If
+
+'''''''''''
+        
+        M_n_CFY = R_pc * M_yc ' F4-1
+
+        a_w = h_c * t_w / b_f / t_f
+        r_t = b_f / Application.WorksheetFunction.Powe(12 * (1 + 1 / 6 * a_w), 0.5)
+
+        F_L = 0.7 * F_y ' F4-6a
+        
+        L_p = 1.1 * r_t * Application.WorksheetFunction.Power(E / F_y, 0.5)
+        L_r = 1.95 * r_t * E / F_L * Application.WorksheetFunction.Power(J / S_xc / h_0 + Application.WorksheetFunction.Power((J / S_xc / h_0) ^ 2 + 6.76 * Application.WorksheetFunction.Power(F_L / E, 2), 0.5), 0.5)
+
+        If L_b <= L_p Then
+            M_n_LTB = m_p
+        ElseIf L_b <= L_r Then
+            M_n_LTB = C_b * (R_pc * M_yc - (R_pc * M_yc - F_L * S_xc) * (L_b - L_p) / (L_r - L_p))
+        Else
+            F_cr = C_b * Pi * Pi * E / Application.WorksheetFunction.Power(L_b / r_t, 2) * Application.WorksheetFunction.Power(1 + 0.078 * J / S_xc / h_0 * Application.WorksheetFunction.Power(L_b / r_t, 2), 0.5)
+            M_n_LTB = F_cr * S_xc
+        End If
+
+        If Lambda_f <= Lambda_pf Then ' Compact Flange B4.1b
+            M_n = Application.WorksheetFunction.Min(M_n_LTB, M_n_CFY, m_p) ' F4
+
+        ' Flange Local Buckling
+        ElseIf Lambda_f <= Lambda_rf Then ' Non-Compact Flange
+            M_n = Application.WorksheetFunction.Min(R_pc * M_yc - (R_pc * M_yc - F_L * S_xc) * (Lambda_f - Lambda_pf) / (Lambda_rf - Lambda_pf), M_n_LTB, M_n_CFY, m_p) ' F4-13
+            
+        Else ' Slender Flange
+            ' F4.3(c)
+            If 4 / Application.WorksheetFunction.Power(h / t_w, 0.5) <= 0.35 Then
+                k_c = 0.35
+            Else
+                k_c = Application.WorksheetFunction.Min(0.76, 4 / Application.WorksheetFunction.Power(h / t_w, 0.5))
+            End If
+            M_n = Application.WorksheetFunction.Min(0.9 * E * k_c * S_x / Application.WorksheetFunction.Power(b_f / 2 / t_f, 2), M_n_LTB, M_n_CFY, m_p) ' F4-14
+        End If
+
+        ' Doubly Symmetric Shape, no tension flange yielding
+
+''''''''''
+    
+    Else ' Slender Web B4.1b
+
+        I_yc = 1 / 12 * t_f * b_f * b_f * b_f ' F4.2(c)(2) I_yc is the moment of inertial of the compression flange about the y-axis
+        S_xc = (1 / 12 * b_f * t_f * t_f * t_f + b_f * t_f * Application.WorksheetFunction.Power(0.5 * d - 0.5 * t_f, 2)) / (d / 2) ' F4.1 S_xc is the elastic section modulus referred to compression flange
+        h_c = h ' F4.2(c)(6) h_c is twicee the distance from the centroid to the following: the inside face of the compression flange less the fillet or corner radius, for rolled shapes; the nearest line of fasteners at the compression flange or the inside faces of the compression flange when welds are used, for built-up sections
+
+        a_w = Application.WorksheetFunction.Min(h_c * t_w / b_f / t_f, 10) ' F5.2(c) a_w is defined by Eq F4-12, but shall not exceed 10
+        r_t = b_f / Application.WorksheetFunction.Power(12 * (1 + 1 / 6 * a_w), 0.5)
+
+        L_p = 1.1 * r_t * Application.WorksheetFunction.Power(E / F_y, 0.5)
+        L_r = Pi * r_t * Application.WorksheetFunction.Power(E / 0.7 / F_y, 0.5)
+
+        R_pg = Application.WorksheetFunction.Min(1 - a_w / (1200 + 300 * a_w) * (h_c / t_w - 5.7 * Application.WorksheetFunction.Power(E / F_y, 0.5)), 1)
+
+        M_n_CFY = R_pg * F_y * S_xc ' F5-1
+
+        If L_b <= L_p Then
+            F_cr = F_y
+        ElseIf L_b <= L_r Then
+            F_cr = Application.WorksheetFunction.Min(C_b * (F_y - (0.3 * F_y) * (L_b - L_p) / (L_r - L_p)), F_y)
+        Else
+            F_cr = Application.WorksheetFunction.Min(C_b * Pi * Pi * E / Application.WorksheetFunction.Power(L_b / r_t, 2), F_y)
+        End If
+        
+        M_n_LTB = R_pg * F_cr * S_xc ' F5-2
+
+        If Lambda_f <= Lambda_pf Then ' Compact Flange B4.1b
+            M_n = Application.WorksheetFunction.Min(M_n_LTB, M_n_CFY, m_p) ' F5
+
+        ' Flange Local Buckling
+        ElseIf Lambda_f <= Lambda_rf Then ' Non-Compact Flange
+            M_n = Application.WorksheetFunction.Min(R_pg * (F_y - 0.3 * F_y * (Lambda_f - Lambda_pf) / (Lambda_rf - Lambda_pf)) * S_xc, M_n_LTB, M_n_CFY, m_p) ' F5-8
+            
+        Else ' Slender Flange
+            If 4 / Application.WorksheetFunction.Power(h / t_w, 0.5) <= 0.35 Then
+                k_c = 0.35
+            Else
+                k_c = Application.WorksheetFunction.Power(0.76, 4 / Application.WorksheetFunction.Power(h / t_w, 0.5))
+            End If
+            M_n = Application.WorksheetFunction.Min(R_pg * 0.9 * E * k_c * S_x / Application.WorksheetFunction.Power(b_f / 2 / t_f, 2), M_n_LTB, M_n_CFY, m_p) ' F5-9
+        End If
+
+        ' Doubly Symmetric Shape, no tension flange yielding
+    End If
+
+    M_n_Major = M_n / 12 ' kip in to kip ft
+
+    ' Minor Axis
+
+    M_p_minor = Application.WorksheetFunction.Min(F_y * Z_y, 1.6 * F_y * S_y)
+
+    If Lambda_f <= Lambda_pf Then ' Compact Flange B4.1b
+        M_n_Minor = M_p_minor ' F2
+
+    ' Flange Local Buckling
+    ElseIf Lambda_f <= Lambda_rf Then ' Non-Compact Flange
+        M_n_Minor = Application.WorksheetFunction.Min(M_p_minor - (M_p_minor - 0.7 * F_y * S_y) * (Lambda_f - Lambda_pf) / (Lambda_rf - Lambda_pf), M_p_minor) ' F3-1
+            
+    Else ' Slender Flange
+        M_n_Minor = Application.WorksheetFunction.Min(0.69 * E * S_y / Lambda_f / Lambda_f, M_p_minor) ' F3-2
+    End If
+
+    M_n_Minor = M_n_Minor / 12 ' Unit ft
+    
+    
+    'Combined Strength AISC Chapter H
+
+M_c_Minor = M_n_Minor / 1.67
+
+M_r_Minor = Axial_Moment_Minor
+
+Doubly_I_Flexure_Minor = M_r_Minor / M_c_Minor
+    
+End Function
+
+
+

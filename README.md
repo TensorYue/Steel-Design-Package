@@ -4,6 +4,8 @@ Allowable Stress Design (ASD) Method
 
 Written in Excel VBA
 
+The author has tested the package with several Model Problems with the comparison of the results from Commercial Software such as Tekla Tedds.
+
 User can rewrite the code into their preferred programming language if have no access to Excel VBA.
 
 ## Package Feature

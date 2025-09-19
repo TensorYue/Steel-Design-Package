@@ -11,7 +11,7 @@ User can rewrite the code into their preferred programming language if have no a
 ### Dynamic Update for Changes
 <img width="1594" height="399" alt="image" src="https://github.com/user-attachments/assets/398ac10f-a1a0-47fc-955b-b09932e3cea7" />
 
-## Supported Design
+## Supporting Design
 
 ### Doubly Symmetric I Shape
 
